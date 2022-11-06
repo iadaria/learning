@@ -25,7 +25,7 @@ fn largest<T: PartialOrd>(list: &[T]) -> &T {
     largest
 }
 
-fn largest_second<T: PartialOrd + Copy>(list: &[T]) -> T {
+fn largest_two<T: PartialOrd + Copy>(list: &[T]) -> T {
     let mut largest = list[0];
 
     for &item in list.iter() {
