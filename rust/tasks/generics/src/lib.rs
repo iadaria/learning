@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 pub trait Summary {
     fn summarize(&self) -> String;
     fn summarize_author(&self) -> String;
@@ -37,5 +39,26 @@ impl Summary for Tweet {
 
     fn summarize_author(&self) -> String {
         format!("@{}", self.username)
+    }
+}
+
+pub struct Pair<T> {
+    x: T,
+    y: T,
+}
+
+impl<T> Pair<T> {
+    fn new(x: T, y: T) -> Self {
+        Self { x, y }
+    }
+}
+
+impl<T: Display + PartialOrd> Pair<T> {
+    fn cmp_display(&self) {
+        if self.x >= self.y {
+            println!("The lagest x is {}", self.x);
+        } else {
+            println!("The lagest y is {}", self.y);
+        }
     }
 }
