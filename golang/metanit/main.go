@@ -2,10 +2,62 @@ package main
 
 import (
 	"fmt"
+	"sync"
+	"time"
 )
 
 func main() {
+	polymorphismMain()
+}
 
+// WaitGroup
+func waitGroup() {
+	var wg sync.WaitGroup
+	wg.Add(2)
+	workSecond := func(id int) {
+		defer wg.Done()
+		fmt.Printf("Goroutine %d started executing \n", id)
+		time.Sleep(2 * time.Second)
+		fmt.Printf("Goroutine %d finished executing \n", id)
+	}
+	go workSecond(1)
+	go workSecond(2)
+
+	wg.Wait()
+	fmt.Printf("Goroutines finished executing")
+}
+
+// Mutexe
+var counter int = 0
+
+func mutex() {
+
+	ch := make(chan bool)
+	var mutex sync.Mutex
+	for i := 1; i < 5; i++ {
+		go work(i, ch, &mutex)
+	}
+
+	// waiting for finishing of all goroutine
+	for i := 1; i < 5; i++ {
+		<-ch
+	}
+
+	fmt.Println("The End")
+}
+
+func work(number int, ch chan bool, mutex *sync.Mutex) {
+	mutex.Lock()
+	counter = 0
+	for k := 1; k <= 5; k++ {
+		counter++
+		fmt.Println("Goroutine", number, "-", counter)
+	}
+	mutex.Unlock()
+	ch <- true
+}
+
+func passingOfDataStreams() {
 	intCh := make(chan int)
 
 	go factorialInfinite(7, intCh)
