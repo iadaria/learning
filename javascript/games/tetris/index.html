@@ -264,7 +264,7 @@
 					// очищаем холст
 					context.clearRect(0, 0, canvas.width, canvas.height);
 
-					// рисуем игровое поле с учётом заполненных фигур
+					// рисуем игровое поле с учётом заполненных фигур из playfield
 					for(let row = 0; row < 20; row++) {
 						for(let col = 0; col < 10; col++) {
 							if (playfield[row][col]) {
