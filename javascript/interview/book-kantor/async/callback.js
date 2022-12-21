@@ -8,5 +8,11 @@ function loadScript(src, callback) {
 }
 
 loadScript('async/script.js', function () {
-  newFunction();
+  newFunction(1);
+  loadScript('async/script2.js', function () {
+    newFunctionTwo(2);
+      loadScript('async/script.js', function() {
+        newFunction(3);
+      })
+  });
 });

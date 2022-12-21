@@ -1,7 +1,7 @@
-alert('The scrpit is executing');
+console.log('The scrpit is executing after loading');
 
 const newVariable = 'a new variable';
 
-function newFunction() {
-  console.log('New function is executing');
+function newFunction(numberOfFunction) {
+  console.log('New function is executing ' + numberOfFunction);
 }
