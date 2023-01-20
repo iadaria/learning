@@ -1,0 +1,34 @@
+class FieldElement:
+	def __init__(self, num, prime):
+		if num >= prime or num < 0:
+			error = 'Num{} not in field range 0 to {}'.format(num, prime - 1)
+			raise ValueError(error)
+		self.num = num
+		self.prime = prime
+	
+	def __repr__(self):
+		return 'FieldElement_{}({})'.format(self.prime, self.num)
+
+	def __eq__(self, operand):
+		if operand is None:
+			return False
+		return self.num == operand.num and self.prime == operand.prime
+
+	def __ne__(self, operand):
+		return not (self == operand)
+
+	def __add__(self, operand):
+		# Проверяем принадлежность к одному и тому же конечному полю
+		if self.prime != operand.prime:
+			raise TypeError('Cannot add two numbers in different Fields')
+		num = (self.num + operand.num) % self.prime
+		# Возвращаем экземпляр данного класса
+		return self.__class__(num, self.prime)
+
+	def __sub__(self, operand):
+		# Проверяем принадлежность к одному и тому же конечному полю
+		if self.prime != operand.prime:
+			raise TypeError('Cannot add two numbers in different Fields')
+		num = (self.num - operand.num) % self.prime
+		# Возвращаем экземпляр данного класса
+		return self.__class__(num, self.prime)
