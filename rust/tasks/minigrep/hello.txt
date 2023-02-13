@@ -1,1 +1,4 @@
 Hello, Daria!
+Rust:
+safe, fast, productive.
+Pick three.
