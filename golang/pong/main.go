@@ -1,3 +1,13 @@
+// TODO
+// DONE - 1. capability to render stuff on screen - done
+// DONE - 2. Draw paddles
+// Player movement
+// Take care of paddle boundaries
+// Draw ball
+// Update ball movement
+// Handle collisions
+// Handle game over
+
 package main
 
 import (
@@ -8,56 +18,87 @@ import (
 	"github.com/gdamore/tcell/v2/encoding"
 )
 
-func emitStr(screen tcell.Screen, x, y int, str string) {
-	for _, c := range str {
-		screen.SetContent(x, y, c, nil, tcell.StyleDefault)
-		x += 1
+const paddleSymbol = 0x2588
+const paddleHeight = 4
+const paddleWidth = 1
+
+type Paddle struct {
+	row, col, width, height int
+}
+
+var screen tcell.Screen
+var player1 *Paddle
+var player2 *Paddle
+
+func printString(col, row int, str string) {
+	for _, char := range str {
+		screen.SetContent(col, row, char, nil, tcell.StyleDefault)
+		col += 1
+	}
+}
+func print(startRow, startCol, width, height int, ch rune) {
+	defStyle := tcell.StyleDefault.Background(tcell.Color100).Foreground(tcell.ColorWhite)
+	for row := 0; row < height; row++ {
+		for column := 0; column < width; column++ {
+			screen.SetContent(startCol+column, startRow+row, ch, nil, defStyle)
+		}
 	}
 }
 
-func displayHellowWorld(screen tcell.Screen) {
-	w, h := screen.Size()
+func drawState() {
 	screen.Clear()
-	emitStr(screen, w/2-7, h/2, "Hello World!")
+	print(player1.row, player1.col, player1.width, player1.height, paddleSymbol)
+	print(player2.row, player2.col, player2.width, player2.height, paddleSymbol)
 	screen.Show()
 }
 
 func main() {
-	// TODO
-	// 1. capability to render stuff on screen - done
-	// Draw paddles
-	// Player movement
-	// Take care of paddle boundaries
-	// Draw ball
-	// Update ball movement
-	// Handle collisions
-	// Handle game over
+	initScreen()
 
+	initGameStage()
+
+	drawState()
+
+	for {
+		switch ev := screen.PollEvent().(type) {
+
+		case *tcell.EventKey:
+			if ev.Key() == tcell.KeyEnter {
+				screen.Fini()
+				os.Exit(0)
+			}
+		}
+	}
+
+}
+
+func initScreen() {
 	encoding.Register()
 
-	sсreen, err := tcell.NewScreen()
+	var err error
+	screen, err = tcell.NewScreen()
+
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
 	}
-	if err := sсreen.Init(); err != nil {
+	if err := screen.Init(); err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
 		os.Exit(1)
 	}
 
 	defStyle := tcell.StyleDefault.Background(tcell.ColorBlack).Foreground(tcell.ColorWhite)
-	sсreen.SetStyle(defStyle)
+	screen.SetStyle(defStyle)
+}
 
-	displayHellowWorld(sсreen)
+func initGameStage() {
+	width, height := screen.Size()
+	paddleStart := height/2 - paddleHeight/2
 
-	for {
-		switch ev := sсreen.PollEvent().(type) {
-
-		case *tcell.EventKey:
-			if ev.Key() == tcell.KeyEnter {
-				sсreen.Fini()
-				os.Exit(0)
-			}
-		}
+	player1 = &Paddle{
+		row: paddleStart, col: 0, width: paddleWidth, height: paddleHeight,
+	}
+	player2 = &Paddle{
+		row: paddleStart, col: width - 1, width: paddleWidth, height: paddleHeight,
 	}
 }
