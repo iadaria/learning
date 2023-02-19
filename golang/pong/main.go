@@ -1,6 +1,10 @@
+// TODO The auto rebuild 'gomon'
+//Interesting https://levelup.gitconnected.com/how-to-watch-for-file-change-in-golang-4d1eaa3d2964
+
 // TODO
 // DONE - 1. capability to render stuff on screen - done
 // DONE - 2. Draw paddles
+// 3 User input
 // Player movement
 // Take care of paddle boundaries
 // Draw ball
@@ -13,6 +17,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/gdamore/tcell/v2/encoding"
@@ -29,14 +34,15 @@ type Paddle struct {
 var screen tcell.Screen
 var player1 *Paddle
 var player2 *Paddle
+var debugLog string
 
-func printString(col, row int, str string) {
+func PrintString(col, row int, str string) {
 	for _, char := range str {
 		screen.SetContent(col, row, char, nil, tcell.StyleDefault)
 		col += 1
 	}
 }
-func print(startRow, startCol, width, height int, ch rune) {
+func Print(startRow, startCol, width, height int, ch rune) {
 	defStyle := tcell.StyleDefault.Background(tcell.Color100).Foreground(tcell.ColorWhite)
 	for row := 0; row < height; row++ {
 		for column := 0; column < width; column++ {
@@ -45,34 +51,30 @@ func print(startRow, startCol, width, height int, ch rune) {
 	}
 }
 
-func drawState() {
+func DrawState() {
 	screen.Clear()
-	print(player1.row, player1.col, player1.width, player1.height, paddleSymbol)
-	print(player2.row, player2.col, player2.width, player2.height, paddleSymbol)
+	PrintString(0, 0, debugLog)
+	Print(player1.row, player1.col, player1.width, player1.height, paddleSymbol)
+	Print(player2.row, player2.col, player2.width, player2.height, paddleSymbol)
 	screen.Show()
 }
 
 func main() {
-	initScreen()
-
-	initGameStage()
-
-	drawState()
+	InitScreen()
+	InitGameStage()
+	DrawState()
+	InitUserInput()
 
 	for {
-		switch ev := screen.PollEvent().(type) {
 
-		case *tcell.EventKey:
-			if ev.Key() == tcell.KeyEnter {
-				screen.Fini()
-				os.Exit(0)
-			}
-		}
+		DrawState()
+		time.Sleep(500 * time.Millisecond)
+
 	}
 
 }
 
-func initScreen() {
+func InitScreen() {
 	encoding.Register()
 
 	var err error
@@ -91,7 +93,7 @@ func initScreen() {
 	screen.SetStyle(defStyle)
 }
 
-func initGameStage() {
+func InitGameStage() {
 	width, height := screen.Size()
 	paddleStart := height/2 - paddleHeight/2
 
@@ -101,4 +103,32 @@ func initGameStage() {
 	player2 = &Paddle{
 		row: paddleStart, col: width - 1, width: paddleWidth, height: paddleHeight,
 	}
+}
+
+func InitUserInput() {
+	go func() {
+		for {
+			switch ev := screen.PollEvent().(type) {
+			case *tcell.EventKey:
+				// TODO:
+				debugLog = ev.Name()
+			}
+		}
+	}()
+	/* switch ev := screen.PollEvent().(type) {
+	case *tcell.EventKey:
+		if ev.Rune() == 'q' {
+			screen.Fini()
+			os.Exit(0)
+		} else if ev.Rune() == 'w' {
+			player1.row--
+		} else if ev.Rune() == 's' {
+			player1.row++
+		} else if ev.Key() == tcell.KeyUp {
+			player2.row--
+		} else if ev.Key() == tcell.KeyDown {
+			player2.row++
+		}
+	} */
+
 }
