@@ -2,15 +2,19 @@
 //Interesting https://levelup.gitconnected.com/how-to-watch-for-file-change-in-golang-4d1eaa3d2964
 
 // TODO
-// DONE - 1. capability to render stuff on screen - done
-// DONE - 2. Draw paddles
-// DONE - 3 User input
-// DONE - 4 Player movement
-// DONE - 5 Take care of paddle boundaries
-// DONE - 6 Draw ball
-// DONE - 7 Update ball movement
-// Handle collisions
-// Handle game over
+// * DONE - 1. capability to render stuff on screen - done
+// * DONE - 2. Draw paddles
+// * DONE - 3 User input
+// * DONE - 4 Player movement
+// * DONE - 5 Take care of paddle boundaries
+// * DONE - 6 Draw ball
+// * DONE - 7 Update ball movement
+// * DONE - 8 Handle ball to wall collision
+// * DONE - 9 Handle ball to paddle collision
+// ? 10 Handle game over
+// ? 10 Handle game over
+// ! Exit
+// @param myParam The
 
 package main
 
@@ -29,7 +33,7 @@ const paddleHeight = 8
 const paddleWidth = 1
 const InitialBallVelocityRow = 1
 const InitialBallVelocityCol = 2
-const timeout = 75
+const timeout = 100
 
 type GameObject struct {
 	row, col, width, height int
@@ -42,6 +46,7 @@ var player1 *GameObject
 var player2 *GameObject
 var ball *GameObject
 var debugLog string
+var isGamePaused = false
 
 var gameObjects []*GameObject
 
@@ -135,19 +140,54 @@ func ReadInput(inputChan chan string) string {
 
 // some anymation: color
 func UpdateState() {
+	if isGamePaused {
+		return
+	}
 	for i := range gameObjects {
 		gameObjects[i].row += gameObjects[i].velRow
 		gameObjects[i].col += gameObjects[i].velCol
 	}
+
+	debugLog = fmt.Sprintf("ball: row=%d, col=%d\npaddle 1: row=%d, col=%d\npaddle 2:row=%d, col=%d",
+		ball.row, ball.col, player1.row, player1.col, player2.row, player2.col)
+	if CollidesWithWall(ball) {
+		ball.velRow = -ball.velRow
+	}
+
+	if CollidesWithPaddle(ball, player1) || CollidesWithPaddle(ball, player2) {
+		ball.velCol = -ball.velCol
+	}
 }
 
 func DrawState() {
+
+	if isGamePaused {
+		return
+	}
+
 	screen.Clear()
 	PrintString(0, 0, debugLog)
 	for _, obj := range gameObjects {
 		Print(obj.row, obj.col, obj.width, obj.height, obj.symbol)
 	}
 	screen.Show()
+}
+
+func CollidesWithWall(obj *GameObject) bool {
+	_, screenHeight := screen.Size()
+	return obj.row+obj.velRow < 0 || obj.row+obj.velRow > screenHeight
+}
+
+func CollidesWithPaddle(ball *GameObject, paddle *GameObject) bool {
+	var collidesOnColumn bool
+	if ball.col < paddle.col {
+		collidesOnColumn = ball.col+ball.velCol >= paddle.col
+	} else {
+		collidesOnColumn = ball.col+ball.velCol <= paddle.col
+	}
+	return collidesOnColumn &&
+		ball.row >= paddle.row &&
+		ball.row < paddle.row+paddle.height
 }
 
 func PrintString(col, row int, str string) {
@@ -172,12 +212,14 @@ func HandleUserInput(key string) {
 		screen.Fini()
 		os.Exit(0)
 	} else if key == "Rune[w]" && player1.row > 0 {
-		player1.row--
+		player1.row -= 2
 	} else if key == "Rune[s]" && player1.row+player1.height < screenHeight {
-		player1.row++
+		player1.row += 2
 	} else if key == "Up" && player2.row > 0 {
-		player2.row--
+		player2.row -= 2
 	} else if key == "Down" && player2.row+player2.height < screenHeight {
-		player2.row++
+		player2.row += 2
+	} else if key == "Rune[p]" {
+		isGamePaused = !isGamePaused
 	}
 }
