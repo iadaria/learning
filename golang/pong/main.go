@@ -6,9 +6,9 @@
 // DONE - 2. Draw paddles
 // DONE - 3 User input
 // DONE - 4 Player movement
-// Take care of paddle boundaries
-// Draw ball
-// Update ball movement
+// DONE - 5 Take care of paddle boundaries
+// DONE - 6 Draw ball
+// DONE - 7 Update ball movement
 // Handle collisions
 // Handle game over
 
@@ -23,18 +23,27 @@ import (
 	"github.com/gdamore/tcell/v2/encoding"
 )
 
-const paddleSymbol = 0x2588
+const PaddleSymbol = 0x2588
+const BallSymbol = 0x25CF
 const paddleHeight = 8
 const paddleWidth = 1
+const InitialBallVelocityRow = 1
+const InitialBallVelocityCol = 2
+const timeout = 75
 
-type Paddle struct {
+type GameObject struct {
 	row, col, width, height int
+	velRow, velCol          int
+	symbol                  rune
 }
 
 var screen tcell.Screen
-var player1 *Paddle
-var player2 *Paddle
+var player1 *GameObject
+var player2 *GameObject
+var ball *GameObject
 var debugLog string
+
+var gameObjects []*GameObject
 
 func main() {
 	InitScreen()
@@ -43,11 +52,11 @@ func main() {
 	inputChan := InitUserInput()
 
 	for {
+		HandleUserInput(ReadInput(inputChan))
+		UpdateState()
 		DrawState()
-		time.Sleep(50 * time.Millisecond)
 
-		key := ReadInput(inputChan)
-		HandleUserInput(key)
+		time.Sleep(timeout * time.Millisecond)
 	}
 }
 
@@ -74,11 +83,26 @@ func InitGameStage() {
 	width, height := screen.Size()
 	paddleStart := height/2 - paddleHeight/2
 
-	player1 = &Paddle{
+	player1 = &GameObject{
 		row: paddleStart, col: 0, width: paddleWidth, height: paddleHeight,
+		velRow: 0, velCol: 0,
+		symbol: PaddleSymbol,
 	}
-	player2 = &Paddle{
+
+	player2 = &GameObject{
 		row: paddleStart, col: width - 1, width: paddleWidth, height: paddleHeight,
+		velRow: 0, velCol: 0,
+		symbol: PaddleSymbol,
+	}
+
+	ball = &GameObject{
+		row: height / 2, col: width / 2, width: 1, height: 1,
+		velRow: InitialBallVelocityRow, velCol: InitialBallVelocityCol,
+		symbol: BallSymbol,
+	}
+
+	gameObjects = []*GameObject{
+		player1, player2, ball,
 	}
 }
 
@@ -109,11 +133,20 @@ func ReadInput(inputChan chan string) string {
 	return key
 }
 
+// some anymation: color
+func UpdateState() {
+	for i := range gameObjects {
+		gameObjects[i].row += gameObjects[i].velRow
+		gameObjects[i].col += gameObjects[i].velCol
+	}
+}
+
 func DrawState() {
 	screen.Clear()
 	PrintString(0, 0, debugLog)
-	Print(player1.row, player1.col, player1.width, player1.height, paddleSymbol)
-	Print(player2.row, player2.col, player2.width, player2.height, paddleSymbol)
+	for _, obj := range gameObjects {
+		Print(obj.row, obj.col, obj.width, obj.height, obj.symbol)
+	}
 	screen.Show()
 }
 
@@ -124,7 +157,7 @@ func PrintString(col, row int, str string) {
 	}
 }
 func Print(startRow, startCol, width, height int, ch rune) {
-	defStyle := tcell.StyleDefault.Background(tcell.ColorLightGoldenrodYellow).Foreground(tcell.ColorWhite)
+	defStyle := tcell.StyleDefault.Background(tcell.ColorDarkOliveGreen.TrueColor()).Foreground(tcell.ColorWhite)
 	for row := 0; row < height; row++ {
 		for column := 0; column < width; column++ {
 			screen.SetContent(startCol+column, startRow+row, ch, nil, defStyle)
