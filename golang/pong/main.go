@@ -4,8 +4,8 @@
 // TODO
 // DONE - 1. capability to render stuff on screen - done
 // DONE - 2. Draw paddles
-// 3 User input
-// Player movement
+// DONE - 3 User input
+// DONE - 4 Player movement
 // Take care of paddle boundaries
 // Draw ball
 // Update ball movement
@@ -24,7 +24,7 @@ import (
 )
 
 const paddleSymbol = 0x2588
-const paddleHeight = 4
+const paddleHeight = 8
 const paddleWidth = 1
 
 type Paddle struct {
@@ -47,18 +47,7 @@ func main() {
 		time.Sleep(50 * time.Millisecond)
 
 		key := ReadInput(inputChan)
-		if key == "Rune[q]" {
-			screen.Fini()
-			os.Exit(0)
-		} else if key == "Rune[w]" {
-			player1.row--
-		} else if key == "Rune[s]" {
-			player1.row++
-		} else if key == "Up" {
-			player2.row--
-		} else if key == "Down" {
-			player2.row++
-		}
+		HandleUserInput(key)
 	}
 }
 
@@ -140,5 +129,22 @@ func Print(startRow, startCol, width, height int, ch rune) {
 		for column := 0; column < width; column++ {
 			screen.SetContent(startCol+column, startRow+row, ch, nil, defStyle)
 		}
+	}
+}
+
+func HandleUserInput(key string) {
+	_, screenHeight := screen.Size()
+
+	if key == "Rune[q]" {
+		screen.Fini()
+		os.Exit(0)
+	} else if key == "Rune[w]" && player1.row > 0 {
+		player1.row--
+	} else if key == "Rune[s]" && player1.row+player1.height < screenHeight {
+		player1.row++
+	} else if key == "Up" && player2.row > 0 {
+		player2.row--
+	} else if key == "Down" && player2.row+player2.height < screenHeight {
+		player2.row++
 	}
 }
