@@ -36,42 +36,30 @@ var player1 *Paddle
 var player2 *Paddle
 var debugLog string
 
-func PrintString(col, row int, str string) {
-	for _, char := range str {
-		screen.SetContent(col, row, char, nil, tcell.StyleDefault)
-		col += 1
-	}
-}
-func Print(startRow, startCol, width, height int, ch rune) {
-	defStyle := tcell.StyleDefault.Background(tcell.Color100).Foreground(tcell.ColorWhite)
-	for row := 0; row < height; row++ {
-		for column := 0; column < width; column++ {
-			screen.SetContent(startCol+column, startRow+row, ch, nil, defStyle)
-		}
-	}
-}
-
-func DrawState() {
-	screen.Clear()
-	PrintString(0, 0, debugLog)
-	Print(player1.row, player1.col, player1.width, player1.height, paddleSymbol)
-	Print(player2.row, player2.col, player2.width, player2.height, paddleSymbol)
-	screen.Show()
-}
-
 func main() {
 	InitScreen()
 	InitGameStage()
 	DrawState()
-	InitUserInput()
+	inputChan := InitUserInput()
 
 	for {
-
 		DrawState()
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(50 * time.Millisecond)
 
+		key := ReadInput(inputChan)
+		if key == "Rune[q]" {
+			screen.Fini()
+			os.Exit(0)
+		} else if key == "Rune[w]" {
+			player1.row--
+		} else if key == "Rune[s]" {
+			player1.row++
+		} else if key == "Up" {
+			player2.row--
+		} else if key == "Down" {
+			player2.row++
+		}
 	}
-
 }
 
 func InitScreen() {
@@ -89,7 +77,7 @@ func InitScreen() {
 		os.Exit(1)
 	}
 
-	defStyle := tcell.StyleDefault.Background(tcell.ColorBlack).Foreground(tcell.ColorWhite)
+	defStyle := tcell.StyleDefault.Background(tcell.ColorDarkOliveGreen.TrueColor()).Foreground(tcell.ColorWhite)
 	screen.SetStyle(defStyle)
 }
 
@@ -105,30 +93,52 @@ func InitGameStage() {
 	}
 }
 
-func InitUserInput() {
+func InitUserInput() chan string {
+	inputChan := make(chan string)
 	go func() {
 		for {
 			switch ev := screen.PollEvent().(type) {
 			case *tcell.EventKey:
 				// TODO:
-				debugLog = ev.Name()
+				//debugLog = ev.Name()
+				inputChan <- ev.Name()
 			}
 		}
 	}()
-	/* switch ev := screen.PollEvent().(type) {
-	case *tcell.EventKey:
-		if ev.Rune() == 'q' {
-			screen.Fini()
-			os.Exit(0)
-		} else if ev.Rune() == 'w' {
-			player1.row--
-		} else if ev.Rune() == 's' {
-			player1.row++
-		} else if ev.Key() == tcell.KeyUp {
-			player2.row--
-		} else if ev.Key() == tcell.KeyDown {
-			player2.row++
-		}
-	} */
 
+	return inputChan
+}
+
+func ReadInput(inputChan chan string) string {
+	var key string
+	select {
+	case key = <-inputChan:
+	default:
+		key = ""
+	}
+
+	return key
+}
+
+func DrawState() {
+	screen.Clear()
+	PrintString(0, 0, debugLog)
+	Print(player1.row, player1.col, player1.width, player1.height, paddleSymbol)
+	Print(player2.row, player2.col, player2.width, player2.height, paddleSymbol)
+	screen.Show()
+}
+
+func PrintString(col, row int, str string) {
+	for _, char := range str {
+		screen.SetContent(col, row, char, nil, tcell.StyleDefault)
+		col += 1
+	}
+}
+func Print(startRow, startCol, width, height int, ch rune) {
+	defStyle := tcell.StyleDefault.Background(tcell.ColorLightGoldenrodYellow).Foreground(tcell.ColorWhite)
+	for row := 0; row < height; row++ {
+		for column := 0; column < width; column++ {
+			screen.SetContent(startCol+column, startRow+row, ch, nil, defStyle)
+		}
+	}
 }
