@@ -37,7 +37,6 @@ class Point:
             return self.__class__(x3, y3, self.a, self.b)
         # P1 = -P2 or P1 + P2 = I
         if self == other:
-            print('Here')
             s = (3 * self.x ** 2 + self.a) / 2 * self.y
             x3 = s ** 2 - 2 * self.x
             y3 = s *(self.x - x3) - self.y
