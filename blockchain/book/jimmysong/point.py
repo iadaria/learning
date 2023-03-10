@@ -10,6 +10,9 @@ class Point:
             error = '({}, {}) is not on the curve'.format(x, y)
             raise ValueError(error)
     
+    def __repr__(self):
+        return 'Elliptic curve: y^2 = x^3 + {}x + {}\nPoint: ({}, {})'.format(self.a, self.b, self.x, self.y)
+
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y and self.a == other.a and self.b == other.b
     
@@ -26,3 +29,9 @@ class Point:
             return self
         if self.x == other.x and self.y != other.y:
             return self.__class__(None, None, self.a, self.b)
+        # A + B = C
+        if self.x != other.x:
+            s = (other.y - self.y) / (other.x - self.x)
+            x3 = s ** 2 - self.x - other.x
+            y3 = s * (self.x - x3) - self.y
+            return self.__class__(x3, y3, self.a, self.b)
