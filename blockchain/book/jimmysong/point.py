@@ -29,9 +29,17 @@ class Point:
             return self
         if self.x == other.x and self.y != other.y:
             return self.__class__(None, None, self.a, self.b)
-        # A + B = C
+        # P1 + P2 = P3
         if self.x != other.x:
             s = (other.y - self.y) / (other.x - self.x)
             x3 = s ** 2 - self.x - other.x
             y3 = s * (self.x - x3) - self.y
             return self.__class__(x3, y3, self.a, self.b)
+        # P1 = -P2 or P1 + P2 = I
+        if self == other:
+            print('Here')
+            s = (3 * self.x ** 2 + self.a) / 2 * self.y
+            x3 = s ** 2 - 2 * self.x
+            y3 = s *(self.x - x3) - self.y
+            return self.__class__(x3, y3, self.a, self.b)
+        
