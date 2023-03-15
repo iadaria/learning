@@ -1,0 +1,3 @@
+Searching 'rust'
+In the file 'hello.txt'
+Rust:
