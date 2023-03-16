@@ -1,3 +1,6 @@
+from ecc import FieldElement
+
+
 class Point:
     def __init__(self, x, y, a, b):
         self.x = x
@@ -37,8 +40,16 @@ class Point:
             return self.__class__(x3, y3, self.a, self.b)
         # P1 = -P2 or P1 + P2 = I
         if self == other:
-            s = (3 * self.x ** 2 + self.a) / 2 * self.y
-            x3 = s ** 2 - 2 * self.x
-            y3 = s *(self.x - x3) - self.y
+            if isinstance(self.x, FieldElement):
+                three = FieldElement(3, self.x.prime)
+                two = FieldElement(2, self.x.prime)
+                s = (three * (self.x ** 2) + self.a) / two * self.y
+                x3 = s ** 2 - two * self.x
+                y3 = s *(self.x - x3) - self.y
+            else:
+                s = (3 * (self.x ** 2) + self.a) / 2 * self.y
+                x3 = s ** 2 - 2 * self.x
+                y3 = s *(self.x - x3) - self.y
+                
             return self.__class__(x3, y3, self.a, self.b)
         
