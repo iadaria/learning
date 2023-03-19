@@ -4,6 +4,23 @@ from point import Point
 
 class ECCTest(unittest.TestCase):
 
+    # Найти порядок группы
+    def find_n(self):
+        prime = 223
+        a = FieldElement(0, prime)
+        b = FieldElement(7, prime)
+        x = FieldElement(15, prime)
+        y = FieldElement(86, prime)
+        p = Point(x, y, a, b)
+        inf = Point(None, None, a, b)
+        product = p
+        count = 1
+        while product != inf:
+            product += p
+            count += 1
+        print(count)
+        self.assertEqual(7, count)
+
     def test_on_curve(self):
         prime = 223
         a = FieldElement(0, prime)
@@ -17,8 +34,8 @@ class ECCTest(unittest.TestCase):
         for x_raw, y_raw in invalid_points:
             x = FieldElement(x_raw, prime)
             y = FieldElement(y_raw, prime)
-            #with self.assertRaises(ValueError):
-                #Point(x, y, a, b)
+            with self.assertRaises(ValueError):
+                Point(x, y, a, b)
 
     def test_add(self):
         prime = 223
@@ -51,4 +68,18 @@ class ECCTest(unittest.TestCase):
         p1 = Point(x1, y1, a, b)
         print()
         print(p1 + p1)
+        print(2 * p1)
         
+        x1 = FieldElement(143, prime)
+        y1 = FieldElement(98, prime)
+        p2 = Point(x1, y1, a, b)
+        print()
+        print(p2 + p2)
+        print(2 * p2)
+
+        for mult in (2, 4, 8, 21):
+            print('mult = {}'.format(mult))
+            x = FieldElement(47, prime)
+            y = FieldElement(71, prime)
+            p = Point(x, y, a, b)
+            print(mult * p)
