@@ -24,10 +24,15 @@ class Point:
         return not (self == other)
     
     def __rmul__(self, coefficient):
-        product = self.__class__(None, None, self.a, self.b)
-        for _ in range(coefficient):
-            product += self
-        return product
+        coef = coefficient
+        current = self
+        result = self.__class__(None, None, self.a, self.b)
+        while coef:
+            if coef & 1:
+                result += current
+            current += current
+            coef >>= 1
+        return result
     
     def __add__(self, other):
         if self.a != other.a or self.b != other.b:

@@ -54,9 +54,3 @@ class FieldElement:
             raise TypeError('Cannot divide two numbers in defferent Fields')
         num = self.num * pow(other.num, self.prime - 2, self.prime) % self.prime
         return self.__class__(num, self.prime)
-    
-    """ def __rmul__(self, coefficient):
-        product = self.__class__(None, self.prime)
-        for _ in range(coefficient):
-            product += self
-        return product """
