@@ -1,4 +1,5 @@
-from ecc import FieldElement
+"""Point"""
+from field import FieldElement
 
 class Point:
     def __init__(self, x, y, a, b):
@@ -11,7 +12,7 @@ class Point:
         if self.y ** 2 != self.x ** 3 + a * x + b:
             error = '({}, {}) is not on the curve'.format(x, y)
             raise ValueError(error)
-    
+
     def __repr__(self):
         if self.x is None or self.y is None:
             return 'Point = 0'
@@ -19,10 +20,10 @@ class Point:
 
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y and self.a == other.a and self.b == other.b
-    
+
     def __ne__(self, other):
         return not (self == other)
-    
+
     def __rmul__(self, coefficient):
         coef = coefficient
         current = self
@@ -33,7 +34,7 @@ class Point:
             current += current
             coef >>= 1
         return result
-    
+
     def __add__(self, other):
         if self.a != other.a or self.b != other.b:
             error = 'Points {}, {} are not on the same curve'.format(self, other)
@@ -65,6 +66,5 @@ class Point:
                 s = (3 * (self.x ** 2) + self.a) / (2 * self.y)
                 x3 = s ** 2 - 2 * self.x
                 y3 = s *(self.x - x3) - self.y
-                    
+
             return self.__class__(x3, y3, self.a, self.b)
-        

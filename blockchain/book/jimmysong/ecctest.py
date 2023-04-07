@@ -1,5 +1,5 @@
 import unittest
-from ecc import FieldElement
+from field import FieldElement
 from point import Point
 
 class ECCTest(unittest.TestCase):
@@ -93,3 +93,21 @@ class ECCTest(unittest.TestCase):
             y = FieldElement(71, prime)
             p = Point(x, y, a, b)
             print(mult * p)
+    
+    def secp256k1(self):
+        gx = 0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798
+        gy = 0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8
+        p = 2 ** 256 - 2 ** 32 - 977
+        print(gy ** 2 % p == (gx ** 3 + 7) % p)
+
+    def secp256k1_check_n(self):
+        gx = 0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798
+        gy = 0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8
+        p = 2 ** 256 - 2 ** 32 - 977
+        n = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
+        x = FieldElement(gx, p)
+        y = FieldElement(gy, p)
+        seven = FieldElement(7, p)
+        zero = FieldElement(0, p)
+        G = Point(x, y, zero, seven)
+        print(n * G)
