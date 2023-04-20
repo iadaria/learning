@@ -4,6 +4,7 @@ from point import Point
 
 class ECCTest(unittest.TestCase):
 
+
     def test_rmul(self):
         prime = 223
         a = FieldElement(0, prime)

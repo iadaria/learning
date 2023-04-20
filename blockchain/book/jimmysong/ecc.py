@@ -13,10 +13,21 @@ class S256Field(FieldElement):
     def __repr__(self):
         return '{:x}'.format(self.num).zfill(64)
 
+# Класс Signature для хранения величин r и s
+class Signature:
+    def __init__(self, r, s):
+        self.r = r
+        self.s = s
+
+    def __repr__(self):
+        return 'Signature({:x}, {:x})'.format(self.r, self.s)
+
+# Класс S256Poin представляет собой открытую точку для секретного ключа
 class S256Point(Point):
     def __init__(self, x, y, a=None, b=None):
         a, b = S256Field(A), S256Field(B)
-        if type(x) == int:
+        #if type(x) == int:
+        if isinstance(x, int):
             super().__init__(S256Field(x), S256Field(y), a, b)
         else:
             # Если инициализиуем бесконечно удаленную точку, задаем координаты (x,y) непосредственно
@@ -28,6 +39,19 @@ class S256Point(Point):
     def __rmul__(self, coefficient):
         coef = coefficient % N
         return super().__rmul__(coef)
+
+    def __repr__(self):
+        if self.x is None or self.y is None:
+            return 'S256Poin(infinity)'
+        return 'Elliptic curve: y^2 = x^3 + {}x + {}\nS256Point: ({}, {})'.format(self.a.num, self.b.num, self.x.num, self.y.num)
+
+    # z - хэш документа, который подписываем sig
+    def verify(self, z, sig):
+        s_inv = pow(sig.s, N - 2, N)
+        u = z * s_inv % N
+        v = sig.r * s_inv % N
+        total = u * G + v * self
+        return total.x.num == sig.r
 
 G = S256Point(
   0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798,
