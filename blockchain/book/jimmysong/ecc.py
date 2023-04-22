@@ -1,3 +1,5 @@
+import hashlib
+import hmac
 from point import Point
 from field import FieldElement
 
@@ -12,15 +14,6 @@ class S256Field(FieldElement):
 
     def __repr__(self):
         return '{:x}'.format(self.num).zfill(64)
-
-# Класс Signature для хранения величин r и s
-class Signature:
-    def __init__(self, r, s):
-        self.r = r
-        self.s = s
-
-    def __repr__(self):
-        return 'Signature({:x}, {:x})'.format(self.r, self.s)
 
 # Класс S256Poin представляет собой открытую точку для секретного ключа
 class S256Point(Point):
@@ -57,3 +50,57 @@ G = S256Point(
   0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798,
   0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8
 )
+
+# Класс Signature для хранения величин r и s
+class Signature:
+    def __init__(self, r, s):
+        self.r = r
+        self.s = s
+
+    def __repr__(self):
+        return 'Signature({:x}, {:x})'.format(self.r, self.s)
+
+class PrivateKey:
+
+    def __init__(self, secret):
+        # secret key - e
+        self.secret = secret
+        # poin = public key = e * G
+        self.poin = secret * G
+
+    def hex(self):
+        return '{:x}'.format(self.secret).zfill(64)
+
+    def sign(self, z):
+        k = self.deterministic_k(z)
+        # r - целевая х, R - целевая точка = k*G
+        r = (k * G).x.num
+        k_inv = pow(k, N-2, N)
+        # s = (z + r*e)/k
+        s = (z + r * self.secret) * k_inv % N
+        # При малой величине s получаются узлы для передачи транзакций.
+        # Это делаетя для большей гибкости.
+        if s > N/2:
+            s = N - s
+        return Signature(r, s)
+
+    def deterministic_k(self, z):
+        k = b'\x00' * 32
+        v = b'\x01' * 32
+        if z > N:
+            z -= N
+        z_bytes = z.to_bytes(32, 'big')
+        secret_bytes = self.secret.to_bytes(32, 'big')
+        s256 = hashlib.sha256
+        k = hmac.new(k, v + b'\x00' + secret_bytes + z_bytes, s256).digest()
+        v = hmac.new(k, v, s256).digest()
+        k = hmac.new(k, v + b'\x01' + secret_bytes + z_bytes, s256).digest()
+        v = hmac.new(k, v, s256).digest()
+        while True:
+            v = hmac.new(k, v, s256).digest()
+            candidate = int.from_bytes(v, 'big')
+            if candidate >= 1 and candidate < N:
+                return candidate
+            k = hmac.new(k, v + b'\x00', s256).digest()
+            v = hmac.new(k, v, s256).digest()
+            

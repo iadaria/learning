@@ -1,7 +1,7 @@
 import unittest
 # from ecctest import ECCTest
 from ecctest03 import ECCTest03
-from ecc import G, N
+from ecc import PrivateKey
 
 def suite():
     suite = unittest.TestSuite()
@@ -16,8 +16,10 @@ def suite():
     return suite
 
 def manaul():
-    print(N * G)
+    privateKey = PrivateKey(12345)
+    print(privateKey.deterministic_k(12345))
 
 if __name__ == '__main__':
     runner = unittest.TextTestRunner()
     runner.run(suite())
+    manaul()

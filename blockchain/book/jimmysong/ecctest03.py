@@ -9,10 +9,22 @@ Py = 0x61de6d95231cd89026e286df3b6ae4a894a3378e393e93a0f45b666329a0ae34
 class ECCTest03(unittest.TestCase):
     def test_create_signature(self):
         # private key
-        e = sha256('my secret'.encode('utf-8')).hexdigest()
+        e_bytes = sha256(b'my secret').digest()
+        e = int.from_bytes(e_bytes, 'big')
+        #e = 12345
+        z_bytes = sha256(b'Programming Bitcoin!').digest()
+        z = int.from_bytes(z_bytes, 'big')
         
-        z = sha256('my message'.encode('utf-8')).hexdigest()
-        print(z)
+        k = 1234567890
+        r = (k * G).x.num
+        k_inv = pow(k, N-2, N)
+        s = (z + r * e) * k_inv % N
+        point = e * G
+        print(point)
+        print("*")
+        print('z = {}'.format(hex(z)))
+        print('r = {}'.format(hex(r)))
+        print('s = {}'.format(hex(s)))
 
 
     def test_sign_1(self):
