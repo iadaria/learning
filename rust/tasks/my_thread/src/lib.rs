@@ -1,8 +1,18 @@
 use std::thread;
-use std::sync::mpsc;
+use std::sync::{mpsc, Mutex};
 use std::time::Duration;
 
-pub fn test_channel() {
+fn simple_mutex() {
+    let m = Mutex::new(5);
+    {
+        let mut num = m.lock().unwrap();
+        *num = 6;
+    }
+
+    println!("m = {:?}", m);
+}
+
+fn test_channel() {
   let (tx, rx) = mpsc::channel();
 
     let tx1 = mpsc::Sender::clone(&tx);
@@ -80,7 +90,7 @@ fn vector() {
       println!("***\nHere the vector: {:?}", v);
   });
 
-  drop(v);
+  //drop(v);
 
   handle.join().unwrap();
 }
