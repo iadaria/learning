@@ -8,12 +8,16 @@ B = 7
 N = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
 P = 2 ** 256 - 2 ** 32 - 977
 
+# ********************
+
 class S256Field(FieldElement):
     def __init__(self, num, prime=None):
         super().__init__(num, P)
 
     def __repr__(self):
         return '{:x}'.format(self.num).zfill(64)
+
+# ********************
 
 # Класс S256Poin представляет собой открытую точку для секретного ключа
 class S256Point(Point):
@@ -46,11 +50,17 @@ class S256Point(Point):
         total = u * G + v * self
         return total.x.num == sig.r
 
+    def sec(self):
+        '''Возвращает двоичный вариант данных формата SEC'''
+        return b'\x04' + self.x.num.to_bytes(32, 'big') + self.y.num.to_bytes(32, 'big')
+
+# ********************
+
 G = S256Point(
   0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798,
   0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8
 )
-
+# ********************
 # Класс Signature для хранения величин r и s
 class Signature:
     def __init__(self, r, s):
@@ -59,6 +69,8 @@ class Signature:
 
     def __repr__(self):
         return 'Signature({:x}, {:x})'.format(self.r, self.s)
+
+# ********************
 
 class PrivateKey:
 
@@ -103,4 +115,3 @@ class PrivateKey:
                 return candidate
             k = hmac.new(k, v + b'\x00', s256).digest()
             v = hmac.new(k, v, s256).digest()
-            
