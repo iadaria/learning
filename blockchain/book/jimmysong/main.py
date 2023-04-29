@@ -1,6 +1,6 @@
 import unittest
 # from ecctest import ECCTest
-from ecctest03 import ECCTest03
+from ecctest04 import ECCTest04
 from ecc import PrivateKey
 
 def suite():
@@ -10,9 +10,7 @@ def suite():
     #suite.addTest(ECCTest('test_sum'))
     #suite.addTest(ECCTest('find_n'))
     #suite.addTest(ECCTest('secp256k1_check_n'))
-    suite.addTest(ECCTest03('test_signature_1'))
-    suite.addTest(ECCTest03('test_signature_2'))
-    suite.addTest(ECCTest03('test_create_signature'))
+    suite.addTest(ECCTest04('exercise_1'))
     return suite
 
 def manaul():
@@ -26,6 +24,5 @@ def from256bit_to32byte():
         print('simple byte {} = big byte = {}'.format(digit.to_bytes(), digit_byte_big))
 
 if __name__ == '__main__':
-    #runner = unittest.TextTestRunner()
-    #runner.run(suite())
-    from256bit_to32byte()
+    runner = unittest.TextTestRunner()
+    runner.run(suite())

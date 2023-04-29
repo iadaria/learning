@@ -4,7 +4,6 @@ from point import Point
 
 class ECCTest(unittest.TestCase):
 
-
     def test_rmul(self):
         prime = 223
         a = FieldElement(0, prime)
@@ -13,7 +12,6 @@ class ECCTest(unittest.TestCase):
         y = FieldElement(86, prime)
         p = Point(x, y, a, b)
         print(7 * p)
-
 
     # Найти порядок группы
     def find_n(self):

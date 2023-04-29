@@ -50,9 +50,15 @@ class S256Point(Point):
         total = u * G + v * self
         return total.x.num == sig.r
 
-    def sec(self):
+    def sec(self, compressed=True):
         '''Возвращает двоичный вариант данных формата SEC'''
-        return b'\x04' + self.x.num.to_bytes(32, 'big') + self.y.num.to_bytes(32, 'big')
+        if compressed:
+            if self.y.num % 2 == 0:
+                return b'\x02' + self.x.num.to_bytes(32, 'big')
+            else:
+                return b'\x03' + self.x.num.to_bytes(32, 'big')
+        else:
+            return b'\x04' + self.x.num.to_bytes(32, 'big') + self.y.num.to_bytes(32, 'big')
 
 # ********************
 
