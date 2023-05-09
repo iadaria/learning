@@ -17,6 +17,12 @@ class S256Field(FieldElement):
     def __repr__(self):
         return '{:x}'.format(self.num).zfill(64)
 
+    # Оказывается, в эллиптической кривой secp256k1 величина p используется такая, что p % 4 == 3
+    # что позволяет воспользоваться следюущими формулами.
+    # для извлечения квадратного корня по выведенной формуле w^2 = v, w = v ^ ((p + 1)/4)
+    def sqrt(self):
+        return self ** ((P + 1) / 4)
+
 # ********************
 
 # Класс S256Poin представляет собой открытую точку для секретного ключа
@@ -60,6 +66,31 @@ class S256Point(Point):
         else:
             return b'\x04' + self.x.num.to_bytes(32, 'big') + self.y.num.to_bytes(32, 'big')
 
+    # получаем открытый ключ в формате SEC
+    @classmethod
+    def parse(cls, sec_bin):
+        '''Возвращает объект типа Point из водичных, а не шестнадцатеричных данных формата SEC'''
+        if sec_bin[0] == 4:
+            x = int.from_bytes(sec_bin[1:33], 'big')
+            y = int.from_bytes(sec_bin[33:65], 'big')
+            return S256Point(x=x, y=y)
+        is_even = sec_bin[0] == 2
+        x = S256Field(int.from_bytes(sec_bin[1:], 'big'))
+        # первая часть уравнениия y^2 = x ^ 3 + 7
+        alpha = x ** 3 + S256Field(B)
+        # решить уравнение для левой части
+        beta = alpha.sqrt()
+        if beta.num % 2 == 0:
+            even_beta = beta
+            odd_beta = S256Field(P - beta.num)
+        else:
+            even_beta = S256Field(P - beta.num)
+            odd_beta = beta
+        if is_even:
+            return S256Point(x, even_beta)
+        else:
+            return S256Point(x, odd_beta)
+
 # ********************
 
 G = S256Point(
@@ -75,6 +106,27 @@ class Signature:
 
     def __repr__(self):
         return 'Signature({:x}, {:x})'.format(self.r, self.s)
+
+    # Формируем/сериализуем подпись в формате DER
+    # bytes([целое_число1, целое_число2]) преобразует список чисел в их байтовые эквиваленты
+    def der(self):
+        # r
+        rbin = self.r.to_bytes(32, 'big')
+        # удалить все пустые байты в начале
+        rbin = rbin.lstrip(b'\x00')
+        # если в массиве rbin содержится единичный бит, добавить \x00
+        if rbin[0] & 0x80:
+            rbin = b'\x00' + rbin
+        result = bytes([2, len(rbin)]) + rbin
+        # s
+        sbin = self.s.to_bytes(32, 'big')
+        # удалить все пустые байты в начале
+        sbin = sbin.lstrip(b'\x00')
+        # если в массиве rbin содержится единичный бит, добавить \x00
+        if sbin[0] & 0x80:
+            sbin = b'\x00' + sbin
+        result += bytes([2, len(sbin)]) + sbin
+        return bytes([0x30, len(result)]) + result
 
 # ********************
 

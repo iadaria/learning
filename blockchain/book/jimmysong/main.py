@@ -5,12 +5,7 @@ from ecc import PrivateKey
 
 def suite():
     suite = unittest.TestSuite()
-    #suite.addTest(ECCTest('test_on_curve'))
-    #suite.addTest(ECCTest('test_add'))
-    #suite.addTest(ECCTest('test_sum'))
-    #suite.addTest(ECCTest('find_n'))
-    #suite.addTest(ECCTest('secp256k1_check_n'))
-    suite.addTest(ECCTest04('exercise_1'))
+    suite.addTest(ECCTest04('exercise_2'))
     return suite
 
 def manaul():
