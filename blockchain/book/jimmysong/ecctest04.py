@@ -1,14 +1,17 @@
 import unittest
-from ecc import G, N, Signature
+from ecc import G, Signature
 
 class ECCTest04(unittest.TestCase):
 
     # Представьте в формате DER подпись со следующими величинами r и s:
     def exercise_3(self):
-        r = 1
-        s = 1
-        signature = Signature(1, 1)
+        r = 0x37206a0610995c58074999cb9767b87af4c4978db68c06e8e6e81d282047a7c6
+        s = 0x8ca63759c1157ebeaec0d03cecca119fc9a75bf8e6d0fa65c841c8e2738cdaec
+        signature = Signature(r, s)
         print(signature)
+        der = signature.der()
+        print(der)
+        print(der.hex())
 
     # Представляем открытый ключ в несжатом формате SEC,
     # если имеются следующие секретные ключи

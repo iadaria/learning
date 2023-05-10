@@ -5,7 +5,7 @@ from ecc import PrivateKey
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(ECCTest04('exercise_2'))
+    suite.addTest(ECCTest04('exercise_3'))
     return suite
 
 def manaul():
