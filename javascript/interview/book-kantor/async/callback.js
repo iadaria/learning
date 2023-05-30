@@ -1,8 +1,11 @@
+firstPart();
+
 function firstPart() {
   // 1 part
   function loadScript(src, callback) {
     let script = document.createElement("script");
     script.src = src;
+    script.onload = () => callback();
     document.head.append(script);
   }
 
