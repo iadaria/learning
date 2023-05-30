@@ -4,6 +4,7 @@ pub trait Draw {
   fn draw(&self);
 }
 
+// Box<dyn Draw> является типажным объектом и замещает любой тип внутри Box, реализующий типаж Draw
 pub struct Screen {
   pub components: Vec<Box<dyn Draw>>,
 }
@@ -16,7 +17,32 @@ impl Screen {
   }
 }
 
+pub struct Button {
+  pub width: u32,
+  pub height: u32,
+  pub label: String,
+}
 
+impl Draw for Button {
+  fn draw(&self) {
+    // код для фактической отрисовки кнопки
+  }
+}
+
+/* * Альтернатива * * */
+pub struct ScreenTwo<T: Draw> {
+  pub components: Vec<T>,
+}
+
+impl<T> ScreenTwo<T>
+  where T: Draw {
+    pub fn fun(&self) {
+      for component in self.components.iter() {
+        component.draw();
+      }
+    }
+  }
+/* * * * * * * * */
 
 // Encapsulation
 
