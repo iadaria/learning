@@ -1,4 +1,4 @@
-console.log('The scrpit is executing after loading');
+console.log('The scrpit is executing after the load completion');
 
 const newVariable = 'a new variable';
 
