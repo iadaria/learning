@@ -43,6 +43,7 @@ def int_to_little_endian(n, length):
     byte sequence of length'''
     return n.to_bytes(length, 'little')
 
+# Количество вводов
 def read_varint(s):
     '''Эта функция читает переменное целое число из потока'''
     i = s.read(1)[0]
@@ -58,7 +59,7 @@ def read_varint(s):
     else:
         # все остальное является всего лишь целым числом
         return i
-    
+
 def encode_varint(i):
     '''Кодируем целое число в виде варианта'''
     if i < 0xfd:

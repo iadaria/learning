@@ -47,7 +47,14 @@ class Tx:
         inputs = []
         for _ in range(num_inputs):
             inputs.append(TxIn.parse(stream))
-        return cls(version, inputs, None, None, testnet=testnet)
+        # Выводы
+        num_outputs = read_varint(stream)
+        outputs = []
+        for _ in range(num_outputs):
+            outputs.append(TxOut.parse(stream))
+        # Время блокировки
+        locktime = little_endian_to_int(stream.read(4))
+        return cls(version, inputs, outputs, locktime, testnet=testnet)
 
 
 class TxIn:
@@ -79,3 +86,22 @@ class TxIn:
         script_sig = Script.parse(stream)
         sequence = little_endian_to_int(stream.read(4))
         return cls(prev_tx, prev_index, script_sig, sequence)
+
+class TxOut:
+
+    def __init__(self, amount, script_pubkey):
+        self.amount = amount
+        self.script = script_pubkey
+
+    def __repr__(self):
+        return '{}:{}'.format(self.amount, self.script_publickey)
+
+    @classmethod
+    def parse(cls, stream):
+        '''Этот метод принимает поток байтов и сначала синтаксически
+            анализирует вывод транзакции а затем
+            возвращает объект типа TxOut'''
+        # 64 бита или 8 байт занимает сумма
+        amount = little_endian_to_int(stream.read(8))
+        script_pubkey = Script.parse(stream)
+        return cls(amount, script_pubkey)
