@@ -6,8 +6,12 @@ class Script:
         self.init = True
 
     @classmethod
-    def parse(cls, s):
+    def parse(cls, stream):
         cmds = []
+        return cls()
+
+    @classmethod
+    def serialize(cls):
         return cls()
 
 class ScriptTest(TestCase):
