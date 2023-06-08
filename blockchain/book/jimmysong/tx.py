@@ -72,6 +72,15 @@ class Tx:
         result += int_to_little_endian(self.locktime, 4)
         return result
 
+    # Рассчитываем плату за транзакцию
+    def fee(self, testnet=False):
+        input_sum, output_sum = 0, 0
+        for tx_in in self.tx_ins:
+            input_sum += tx_in.value(testnet=testnet)
+        for tx_out in self.tx_outs:
+            output_sum += tx_out.amount
+        return input_sum - output_sum
+
 class TxIn:
     def __init__(self, prev_tx, prev_index, script_sig=None, sequence=0xffffffff):
         self.prev_tx = prev_tx
@@ -110,6 +119,22 @@ class TxIn:
         result += self.script_sig.serialize()
         result += int_to_little_endian(self.sequence, 4)
         return result
+
+    # Тперь можно получить предыдущую траназакцию по идентификатору предтранзакции из ввода
+    def fetch_tx(self, testnet=False):
+        return TxFetcher.fetch(self.prev_tx.hex(), testnet=testnet)
+
+    def value(self, testnet=False):
+        '''Получаем сумму из вывода, просматриваем хеш транзакции.
+            Возвращаем сумму в сатоши'''
+        tx = self.fetch_tx(testnet=testnet)
+        return tx.tx_outs[self.prev_index].amount
+
+    def script_pubkey(self, testnet=False):
+        '''Получаем сценарий ScriptPubKey просматривая хеш транзакции.
+            Возвращаем объект типа Script'''
+        tx = self.fetch_tx(testnet=testnet)
+        return tx.tx_outs[self.prev_index].script_pubkey
 
 class TxOut:
 
