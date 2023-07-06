@@ -1,6 +1,11 @@
 from unittest import TestCase
 from io import BytesIO
-from helper import read_varint, little_endian_to_int
+from helper import read_varint, little_endian_to_int, int_to_little_endian, encode_varint
+
+from op import (
+    OP_CODE_FUNCTIONS,
+    OP_CODE_NAMES
+)
 
 class Script:
     # cmds - Каждая команда является исполняемым кодом или элементов размещаемым в стеке
@@ -9,6 +14,19 @@ class Script:
             self.cmds = []
         else:
             self.cmds = cmds
+
+    def __repr__(self):
+        result = []
+        for cmd in self.cmds:
+            if isinstance(cmd, int):
+                if OP_CODE_NAMES.get(cmd):
+                    name = OP_CODE_NAMES.get(cmd)
+                else:
+                    name = 'OP_[{}]'.format(cmd)
+                result.append(name)
+            else:
+                result.append(cmd.hex())
+        return ' '.join(result)
 
     @classmethod
     def parse(cls, stream):
@@ -42,17 +60,34 @@ class Script:
             raise SyntaxError('parsing script failed')
         return cls(cmds)
 
-    @classmethod
     def raw_serialize(self):
         result = b''
+        length = 0
         for cmd in self.cmds:
             # Если команда - целое число, значит, это код операции
-            if type(cmd) == int:
+            if isinstance(cmd, int):
+                result += int_to_little_endian(cmd, 1)
+            else:
+                length = len(cmd)
+            if length < 75:
+                result += int_to_little_endian(length, 1)
+            # для любого элемента от 76 до 255 сначала задается код опреации OP_PUSHDATA1,
+            # а затем длина элемента кодируется одним байтом, после которого следует сам элемент
+            elif length > 75 and length < 0x100:
+                result += int_to_little_endian(76, 1)
+                result += int_to_little_endian(length, 1)
+            elif length >= 0x100 and length <= 520:
+                result += int_to_little_endian(77, 1)
+                result += int_to_little_endian(length, 2)
+            else:
+                raise ValueError('too long an cmd')
+            result += cmd
+        return result
 
-
-    @classmethod
-    def serialize(cls):
-        return cls()
+    def serialize(self):
+        result = self.raw_serialize()
+        total = len(result)
+        return encode_varint(total) + result
 
 class ScriptTest(TestCase):
     # Преобразование объекта типа Script из шестнадцатеричной формы в форму Python
