@@ -1,11 +1,14 @@
 from unittest import TestCase
 from io import BytesIO
 from helper import read_varint, little_endian_to_int, int_to_little_endian, encode_varint
+from logging import getLogger
 
 from op import (
     OP_CODE_FUNCTIONS,
     OP_CODE_NAMES
 )
+
+LOGGER = getLogger(__name__)
 
 class Script:
     # cmds - Каждая команда является исполняемым кодом или элементов размещаемым в стеке
@@ -88,6 +91,46 @@ class Script:
         result = self.raw_serialize()
         total = len(result)
         return encode_varint(total) + result
+
+    def __add__(self, other):
+        return Script(self.cmds + other.cmds)
+    
+    def logger(self, cmd):
+        LOGGER.info('bad op: {}'. format(OP_CODE_NAMES[cmd]))
+
+    def evaluate(self, z):
+        cmds = self.cmds[:] # сделаем копию списка команд, тк он изменится
+        stack = []
+        altstack = []
+        while len(cmds) > 0:
+            cmd = cmds.pop(0)
+            if isinstance(cmd, int):
+                operation = OP_CODE_FUNCTIONS[cmd]
+                if cmd in (99, 100):
+                    if not operation(stack, cmds):
+                        self.logger(cmd)
+                        return False
+                elif cmd in (107, 108):
+                    if not operation(stack,  altstack):
+                        self.logger(cmd)
+                        return False
+                elif cmd in (172, 173, 174, 175):
+                    if not operation(stack, z):
+                        self.logger(cmd)
+                        return False
+                else:
+                    if not operation(stack):
+                        self.logger(cmd)
+                        return False
+            else:
+                # Если команда не является кодом операции, то она является элементом
+                # И этот элемент размещается в стеке
+                stack.append(cmd)
+        if len(stack) == 0:
+            return False
+        if stack.pop() == b'':
+            return False
+        return True
 
 class ScriptTest(TestCase):
     # Преобразование объекта типа Script из шестнадцатеричной формы в форму Python

@@ -4,3 +4,4 @@ disable=
     C0103, # snake_case
     C0301, # too long
     E1101, # Instance ... has no ... member
+    W1202,

@@ -1,12 +1,12 @@
 import hashlib
+from ecc import S256Point, Signature
 
 from helper import (
     hash160,
     hash256,
 )
 
-
-# tag::source3[]
+# Числа размещенные в стеке, кодируются в байты
 def encode_num(num):
     if num == 0:
         return b''
@@ -25,7 +25,7 @@ def encode_num(num):
         result[-1] |= 0x80
     return bytes(result)
 
-
+# Числа, извлекаемые из стека, декодируются из байтов, когда требуется числовое значение
 def decode_num(element):
     if element == b'':
         return 0
@@ -44,6 +44,21 @@ def decode_num(element):
     else:
         return result
 
+def op_checksig(stack, z):
+    if len(stack) < 2:
+        return False
+    sec_pubkey = stack.pop()
+    der_signature = stack.pop() [:-1] # ?
+    try:
+        point = S256Point.parse(sec_pubkey)
+        sig = Signature.parse(der_signature)
+    except (ValueError, SyntaxError) as _:
+        return False
+    if point.verify(z, sig):
+        stack.append(encode_num(1))
+    else:
+        stack.append(encode_num(0))
+    return True
 
 def op_0(stack):
     stack.append(encode_num(0))
@@ -223,7 +238,6 @@ def op_verify(stack):
 
 def op_return(stack):
     return False
-
 
 def op_toaltstack(stack, altstack):
     if len(stack) < 1:

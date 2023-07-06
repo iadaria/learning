@@ -1,11 +1,13 @@
 import unittest
 from test import ecctest05
+from tx import TxTest
 
 from ecc import PrivateKey
 
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(ecctest05.ECCTest05('exercise_5'))
+    //suite.addTest(TxTest('test_fee'))
     return suite
 
 def manaul():
