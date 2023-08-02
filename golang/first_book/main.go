@@ -1,5 +1,5 @@
 package main
 
 func main() {
-	ex_4()
+	ex_6()
 }

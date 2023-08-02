@@ -1,6 +1,4 @@
 from helper import read_varint, little_endian_to_int, int_to_little_endian, encode_varint
-from unittest import TestCase
-from io import BytesIO
 from logging import getLogger
 
 from op import (
@@ -62,29 +60,42 @@ class Script:
         if count != length:
             raise SyntaxError('parsing script failed')
         return cls(cmds)
+    
+    # Преобразуем 20-байтовый хеш-код в сценарий ScriptPubKey.
+    # 0x76=OP_DUP, 0xa9=OP_HASH160, h160=20-байтовый элемент, 0x88=OP_EQUALVERIFY, 0xac=OP_CHECKSIG
+    @classmethod
+    def p2pkh_script(cls, h160):
+        '''Принимаем хеш-код hash160 и возвращаем сценарий ScriptPubKey для p2pkh'''
+        return cls([0x76, 0xa9, h160, 0x88, 0xac])
 
     def raw_serialize(self):
+        # initialize what we'll send back
         result = b''
-        length = 0
+        # go through each cmd
         for cmd in self.cmds:
-            # Если команда - целое число, значит, это код операции
-            if isinstance(cmd, int):
+            # if the cmd is an integer, it's an opcode
+            if type(cmd) == int:
+                # turn the cmd into a single byte integer using int_to_little_endian
                 result += int_to_little_endian(cmd, 1)
             else:
+                # otherwise, this is an element
+                # get the length in bytes
                 length = len(cmd)
-            if length < 75:
-                result += int_to_little_endian(length, 1)
-            # для любого элемента от 76 до 255 сначала задается код опреации OP_PUSHDATA1,
-            # а затем длина элемента кодируется одним байтом, после которого следует сам элемент
-            elif length > 75 and length < 0x100:
-                result += int_to_little_endian(76, 1)
-                result += int_to_little_endian(length, 1)
-            elif length >= 0x100 and length <= 520:
-                result += int_to_little_endian(77, 1)
-                result += int_to_little_endian(length, 2)
-            else:
-                raise ValueError('too long an cmd')
-            result += cmd
+                # for large lengths, we have to use a pushdata opcode
+                if length < 75:
+                    # turn the length into a single byte integer
+                    result += int_to_little_endian(length, 1)
+                elif length > 75 and length < 0x100:
+                    # 76 is pushdata1
+                    result += int_to_little_endian(76, 1)
+                    result += int_to_little_endian(length, 1)
+                elif length >= 0x100 and length <= 520:
+                    # 77 is pushdata2
+                    result += int_to_little_endian(77, 1)
+                    result += int_to_little_endian(length, 2)
+                else:
+                    raise ValueError('too long an cmd')
+                result += cmd
         return result
 
     def serialize(self):
@@ -131,7 +142,6 @@ class Script:
         if stack.pop() == b'':
             return False
         return True
-
 # class ScriptTest(TestCase):
 #     # Преобразование объекта типа Script из шестнадцатеричной формы в форму Python
 #     def test_5_1(self):

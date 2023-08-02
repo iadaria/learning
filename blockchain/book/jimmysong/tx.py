@@ -134,7 +134,7 @@ class Tx:
         z = self.sig_hash(input_index)
         der = private_key.sign(z).der()
         sig = der + SIGHASH_ALL.to_bytes(1, 'big')
-        sec = private_key.poin.sec()
+        sec = private_key.point.sec()
         self.tx_ins[input_index].script_sig = Script([sig, sec])
         return self.verify_input(input_index)
 
@@ -142,11 +142,11 @@ class TxIn:
     def __init__(self, prev_tx, prev_index, script_sig=None, sequence=0xffffffff):
         self.prev_tx = prev_tx
         self.prev_index = prev_index
+        self.sequence = sequence
         if script_sig is None:
             self.script_sig = Script()
         else:
             self.script_sig = script_sig
-            self.sequence = sequence
 
     def __repr__(self):
         return '{}:{}'.format(
@@ -200,7 +200,7 @@ class TxOut:
         self.script_pubkey = script_pubkey
 
     def __repr__(self):
-        return '{}:{}'.format(self.amount, self.script_publickey)
+        return '{}:{}'.format(self.amount, self.script_pubkey)
 
     @classmethod
     def parse(cls, stream):
@@ -232,20 +232,21 @@ class TxFetcher:
     @classmethod
     def fetch(cls, tx_id, testnet=False, fresh=False):
         if fresh or (tx_id not in cls.cache):
-            url = '{}/tx/{}.hex'.format(cls.get_url(testnet), tx_id)
+            url = '{}/tx/{}/hex'.format(cls.get_url(testnet), tx_id)
             response = requests.get(url)
             try:
                 raw = bytes.fromhex(response.text.strip())
             except ValueError:
-                raise ValueError('unexpected response: {}', format(response.text))
+                raise ValueError('unexpected response: {}'.format(response.text))
+            # make sure the tx we got matches to the hash we requested
             if raw[4] == 0:
-                raw = raw[:4] + raw[:6]
+                raw = raw[:4] + raw[6:]
                 tx = Tx.parse(BytesIO(raw), testnet=testnet)
                 tx.locktime = little_endian_to_int(raw[-4:])
             else:
                 tx = Tx.parse(BytesIO(raw), testnet=testnet)
             if tx.id() != tx_id:
-                raise ValueError('not hte same id: {} vs {}'.format(tx.id(), tx_id))
+                raise ValueError('not the same id: {} vs {}'.format(tx.id(), tx_id))
             cls.cache[tx_id] = tx
         cls.cache[tx_id].testnet = testnet
         return cls.cache[tx_id]

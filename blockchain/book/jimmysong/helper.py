@@ -1,5 +1,4 @@
 import hashlib
-from script import Script
 
 SIGHASH_ALL = 1
 SIGHASH_NONE = 2
@@ -95,9 +94,3 @@ def decode_base58(s):
     # 1-ый байт обозначает сетевой префикс, последние четыре байта - контрольную сумму
     # а находящиеся между ними 20 байтов - 20-байтовый хеш-код hash160
     return combined[1:-4]
-
-# Преобразуем 20-байтовый хеш-код в сценарий ScriptPubKey.
-# 0x76=OP_DUP, 0xa9=OP_HASH160, h160=20-байтовый элемент, 0x88=OP_EQUALVERIFY, 0xac=OP_CHECKSIG
-def p2pkh_script(h160):
-    '''Принимаем хеш-код hash160 и возвращаем сценарий ScriptPubKey для p2pkh'''
-    return Script([0x76, 0xa9, h160, 0x88, 0xac])
