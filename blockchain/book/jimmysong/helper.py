@@ -1,5 +1,8 @@
 import hashlib
 
+SIGHASH_ALL = 1
+SIGHASH_NONE = 2
+SIGHASH_SINGLE = 3
 BASE58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 
 def encode_base58_checksum(b):
@@ -29,7 +32,7 @@ def encode_base58(s):
         num, mod = divmod(num, 58)
         result = BASE58_ALPHABET[mod] + result
     return prefix + result
-      
+
 # little_endian_to_int() получает байты в порядке Python и инерпертирует их в прямом порядке
 # и возвращает целое число
 def little_endian_to_int(b):
@@ -72,3 +75,22 @@ def encode_varint(i):
         return b'\xff' + int_to_little_endian(i, 8)
     else:
         raise ValueError('integer too large: {}'.format(i))
+
+# Нам нужно как-то преобразовать адрес биткоина в 20-байтовый хеш-код. Эта операция,
+# противоположна кодированию адреса.
+def decode_base58(s):
+    num = 0
+    # Здесь выясняется, в какое именно число кодируется данный адрес в кодировке Base58
+    for c in s:
+        num *= 58
+        num += BASE58_ALPHABET.index(c)
+    # получив число, можно преобразовать его в байты, следующие в обратном порядке
+    combined = num.to_bytes(25, byteorder='big')
+    checksum = combined[-4:] # с конца -4 байта до конца
+    # [:-4] - берет байты с начала до последних 4 байтов
+    if hash256(combined[:-4])[:4] != checksum:
+        raise ValueError('bad address {} {}'
+                         .format(checksum, hash256(combined[:-4])[:4]))
+    # 1-ый байт обозначает сетевой префикс, последние четыре байта - контрольную сумму
+    # а находящиеся между ними 20 байтов - 20-байтовый хеш-код hash160
+    return combined[1:-4]

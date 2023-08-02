@@ -1,5 +1,7 @@
 >go run *.go hi
 
+>go run main.go ch03.go
+
 ### Docker
 
 > docker build -t go_hw .

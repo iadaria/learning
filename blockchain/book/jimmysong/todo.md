@@ -1,33 +1,4 @@
-1 Посмотреть результат raw[-4:] что нам дает
-For example a list:
-```python
-people = ["Tom", "Bob", "Alice", "Sam", "Tim", "Bill"]
-
-slice_people1 = people[:3] # from 0 to 3 Tom, Bob, Alice
-
-slice_people2 = people[:-1] # с предпоследнего по нулевой
-
-slice_people2 = people[-3;-1] # с третьего с конца по предпоследний Sam, Tim
-```
-
-# stack[-1]
-```python
-stack = ["A", "B", "C", "D", "E"]
-print(stack[-1]) # E
-
-stack.append(stack[-1])
-print(stack) # ['A', 'B', 'C', 'D', 'E', 'E']
-
-element = stack.pop()
-print(element) # E
-print(stack) # ['A', 'B', 'C', 'D', 'E']
-```
-
-# stream
-```python
-from io import BytesIO
-stream = BytesIO(bytes.fromhex('6b4830'))
-current = stream.read(1)
-print(current) # b'k'
-print(current[0]) # 107 => 107(10) = 6b(16)
-```
+# step 0
+error AttributeError: type object 'Signature' has no attribute 'parse'
+1 Вспоминаем der и op_checksig()
+2 ? stack.pop() [:-1]

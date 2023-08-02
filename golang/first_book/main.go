@@ -1,5 +1,5 @@
 package main
 
 func main() {
-	slice_1()
+	ex_6()
 }
