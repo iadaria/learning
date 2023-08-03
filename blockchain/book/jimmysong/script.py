@@ -110,42 +110,61 @@ class Script:
         LOGGER.info('bad op: {}'. format(OP_CODE_NAMES[cmd]))
 
     def evaluate(self, z):
-        cmds = self.cmds[:] # сделаем копию списка команд, тк он изменится
+        # create a copy as we may need to add to this list if we have a
+        # RedeemScript
+        cmds = self.cmds[:]
         stack = []
         altstack = []
         while len(cmds) > 0:
             cmd = cmds.pop(0)
-            if isinstance(cmd, int):
+            if type(cmd) == int:
+                # do what the opcode says
                 operation = OP_CODE_FUNCTIONS[cmd]
                 if cmd in (99, 100):
+                    # op_if/op_notif require the cmds array
                     if not operation(stack, cmds):
-                        self.logger(cmd)
+                        LOGGER.info('bad op: {}'.format(OP_CODE_NAMES[cmd]))
                         return False
                 elif cmd in (107, 108):
-                    if not operation(stack,  altstack):
-                        self.logger(cmd)
+                    # op_toaltstack/op_fromaltstack require the altstack
+                    if not operation(stack, altstack):
+                        LOGGER.info('bad op: {}'.format(OP_CODE_NAMES[cmd]))
                         return False
                 elif cmd in (172, 173, 174, 175):
+                    # these are signing operations, they need a sig_hash
+                    # to check against
                     if not operation(stack, z):
-                        self.logger(cmd)
+                        LOGGER.info('bad op: {}'.format(OP_CODE_NAMES[cmd]))
                         return False
                 else:
                     if not operation(stack):
-                        self.logger(cmd)
+                        LOGGER.info('bad op: {}'.format(OP_CODE_NAMES[cmd]))
                         return False
             else:
-                # Если команда не является кодом операции, то она является элементом
-                # И этот элемент размещается в стеке
+                # add the cmd to the stack
                 stack.append(cmd)
+                if len(cmds) == 3 and cmds[0] == 0xa9 \
+                    and type(cmds[1]) == bytes and len(cmds[1]) == 20 \
+                    and cmds[2] == 0x87:
+                    # we execute the next three opcodes
+                    cmds.pop()
+                    h160 = cmds.pop()
+                    cmds.pop()
+                    if not op_hash160(stack):
+                        return False
+                    stack.append(h160)
+                    if not op_equal(stack):
+                        return False
+                    # final result should be a 1
+                    if not op_verify(stack):
+                        LOGGER.info('bad p2sh h160')
+                        return False
+                    # hashes match! now add the RedeemScript
+                    redeem_script = encode_varint(len(cmd)) + cmd
+                    stream = BytesIO(redeem_script)
+                    cmds.extend(Script.parse(stream).cmds)
         if len(stack) == 0:
             return False
         if stack.pop() == b'':
             return False
         return True
-# class ScriptTest(TestCase):
-#     # Преобразование объекта типа Script из шестнадцатеричной формы в форму Python
-#     def test_5_1(self):
-#         script_hex = ('6b483045022100ed81ff192e75a3fd2304004dcadb746fa5e24c5031ccfcf21320b0277457c98f02207a986d955c6e0cb35d446a89d3f56100f4d7f67801c31967743a9c8e10615bed01210349fc4e631e3624a545de3f89f5d8684c7b8138bd94bdd531d2e213bf016b278a')
-#         stream = BytesIO(bytes.fromhex(script_hex))
-#         script_sig = Script.parse(stream)
-#         print(script_sig)
