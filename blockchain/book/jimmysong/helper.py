@@ -94,3 +94,19 @@ def decode_base58(s):
     # 1-ый байт обозначает сетевой префикс, последние четыре байта - контрольную сумму
     # а находящиеся между ними 20 байтов - 20-байтовый хеш-код hash160
     return combined[1:-4]
+
+# Преобразуем 20-байтовый хеш-код hash160 в адрес p2pkh
+def h160_to_p2pkh_address(h160, testnet=False):
+    if testnet:
+        prefix = b'\x6f'
+    else:
+        prefix = b'\x00'
+    return encode_base58_checksum(prefix + h160)
+
+# Преобразуем 20-байтовый хеш-код hash160 в адрес p2sh
+def h160_to_p2sh_address(h160, testnet=False):
+    if testnet:
+        prefix = b'\xc4'
+    else:
+        prefix = b'\x05'
+    return encode_base58_checksum(prefix + h160)
