@@ -1,6 +1,6 @@
->go run *.go hi
+> go run \*.go hi
 
->go run main.go ch03.go
+> go run main.go ch03.go
 
 ### Docker
 

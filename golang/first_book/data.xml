@@ -1,0 +1,17 @@
+xmlData: <?xml version="1.0" encoding="UTF-8"?>
+<Record>
+    <Name>Dimitris</Name>
+    <Surname>Iakimova</Surname>
+    <Tel>
+        <Mobile>true</Mobile>
+        <Number>1234-5667</Number>
+    </Tel>
+    <Tel>
+        <Mobile>true</Mobile>
+        <Number>1234-absc</Number>
+    </Tel>
+    <Tel>
+        <Mobile>false</Mobile>
+        <Number>abcd-5667</Number>
+    </Tel>
+</Record>

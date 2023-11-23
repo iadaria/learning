@@ -3,8 +3,10 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net"
 	"os"
 	"path/filepath"
@@ -14,7 +16,6 @@ import (
 	"time"
 )
 
-// *************************
 type Record struct {
 	Name string
 	Surname string
@@ -26,11 +27,174 @@ type Telephone struct {
 	Number string
 }
 
-func loadFromJSON(filename string, key interface{}) error {
-	_, err := os.Open(filename)
+// ************** XML **************
+
+func modXML() {
+	type Address struct {
+		City, Country string
+	}
+
+	type Employee struct {
+		XMLName xml.Name `xml:"employee"`
+		Id int `xml:"id,attr"`
+		FirstName string `xml:"name>first"`
+		LastName string `xml:"name>last"`
+		Initials string `xml:"name>initials"`
+		Height float32 `xml:"height,omitempty"`
+		Address
+		Comment string `xml:",comment"`
+	}
+
+	r := &Employee{Id: 7, FirstName: "Dahs", LastName: "Hz", Initials: "YAD"}
+	r.Comment = "Technical Writer + DevOps"
+	r.Address = Address{"SomeWhere 12", "12312, Greece"}
+
+	output, err := xml.MarshalIndent(r, " ", " ")
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+	output = []byte(xml.Header + string(output))
+	os.Stdout.Write(output)
+	os.Stdout.Write([]byte("\n"))
+}
+
+// *********** read XML **************
+
+func loadFromXML(filename string, key interface{}) error {
+	in, err := os.Open(filename)
 	if err != nil {
 		return err
 	}
+	decodeXML := xml.NewDecoder(in)
+	err = decodeXML.Decode(key)
+	if err != nil {
+		return err
+	}
+	in.Close()
+	return nil
+}
+
+func readXML() {
+	argument := os.Args
+	if len(argument) == 1 {
+		fmt.Println("Please privde a filename!")
+		return
+	}
+
+	filename := argument[1]
+
+	var myRecord Record
+	err := loadFromXML(filename, &myRecord)
+	if err == nil {
+		fmt.Println("XML:", myRecord)
+	} else {
+		fmt.Println(err)
+	}
+}
+
+// *********** write XML **************
+func rwXML() {
+	argument := os.Args
+	if len(argument) == 1 {
+		fmt.Println("Please privde a filename!")
+		return
+	}
+
+	filename := argument[1]
+
+	var myRecord Record
+	err := loadFromJSON(filename, &myRecord)
+	if err == nil {
+		fmt.Println("JSON:", myRecord)
+	} else {
+		fmt.Println(err)
+	}
+
+	myRecord.Name = "Dimitris"
+
+	xmlData, _ := xml.MarshalIndent(myRecord, "", "    ")
+	xmlData = []byte(xml.Header + string(xmlData))
+	fmt.Println("\nxmlData:", string(xmlData))
+
+	data := &Record{}
+	err = xml.Unmarshal(xmlData, data)
+	if nil != err {
+		fmt.Println("Unmarshalling from XML", err)
+		return
+	}
+
+	result, err := json.Marshal(data)
+	if nil != err {
+		fmt.Println("Error marshalling to JSON", err)
+		return
+	}
+
+	_ = json.Unmarshal([]byte(result), &myRecord)
+	fmt.Println("\nJSON", myRecord)
+}
+
+// ************ JSON *************
+func parsingJSON() {
+	argument := os.Args
+	if len(argument) == 1 {
+		fmt.Println("Please privde a filename!")
+		return
+	}
+
+	filename := argument[1]
+
+	fileData, err := ioutil.ReadFile(filename)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	var parsedData map[string]interface{}
+	json.Unmarshal([]byte(fileData), &parsedData)
+
+	for key, value := range parsedData {
+		fmt.Println("key:", key, "value:", value)
+	}
+}
+
+// *********** JSON **************
+
+func readAndWriteMUJSON() {
+	myRecord := Record{
+		Name: "Dasha",
+		Surname: "Iakimova",
+		Tel: []Telephone{Telephone{Mobile: true, Number: "1234-5667"},
+			Telephone{Mobile: true, Number: "1234-absc"},
+			Telephone{Mobile: false, Number: "abcd-5667"},
+		},
+	}
+	rec, err := json.Marshal(&myRecord)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(string(rec))
+
+	var unRec Record
+	err1 := json.Unmarshal(rec, &unRec)
+	if err1 != nil {
+		fmt.Println(err1)
+		return
+	}
+	fmt.Println(unRec)
+}
+
+func loadFromJSON(filename string, key interface{}) error {
+	in, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+
+	decodeJSON := json.NewDecoder(in)
+	err = decodeJSON.Decode(key)
+	if err != nil {
+		return err
+	}
+	in.Close()
 	return nil
 }
 

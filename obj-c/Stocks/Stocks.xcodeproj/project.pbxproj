@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		439A58042AF0E08000B826D1 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 439A58032AF0E08000B826D1 /* main.m */; };
+		439A580C2AF0E0C300B826D1 /* StockHolding.m in Sources */ = {isa = PBXBuildFile; fileRef = 439A580B2AF0E0C300B826D1 /* StockHolding.m */; };
+		43F28FBD2AF8CAAA00008BDB /* ForeignStockHolding.m in Sources */ = {isa = PBXBuildFile; fileRef = 43F28FBC2AF8CAAA00008BDB /* ForeignStockHolding.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +27,10 @@
 /* Begin PBXFileReference section */
 		439A58002AF0E08000B826D1 /* Stocks */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Stocks; sourceTree = BUILT_PRODUCTS_DIR; };
 		439A58032AF0E08000B826D1 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		439A580A2AF0E0C300B826D1 /* StockHolding.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StockHolding.h; sourceTree = "<group>"; };
+		439A580B2AF0E0C300B826D1 /* StockHolding.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = StockHolding.m; sourceTree = "<group>"; };
+		43F28FBB2AF8CAAA00008BDB /* ForeignStockHolding.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ForeignStockHolding.h; sourceTree = "<group>"; };
+		43F28FBC2AF8CAAA00008BDB /* ForeignStockHolding.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ForeignStockHolding.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,6 +47,10 @@
 		439A57F72AF0E08000B826D1 = {
 			isa = PBXGroup;
 			children = (
+				43F28FBB2AF8CAAA00008BDB /* ForeignStockHolding.h */,
+				43F28FBC2AF8CAAA00008BDB /* ForeignStockHolding.m */,
+				439A580A2AF0E0C300B826D1 /* StockHolding.h */,
+				439A580B2AF0E0C300B826D1 /* StockHolding.m */,
 				439A58022AF0E08000B826D1 /* Stocks */,
 				439A58012AF0E08000B826D1 /* Products */,
 			);
@@ -119,6 +129,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				43F28FBD2AF8CAAA00008BDB /* ForeignStockHolding.m in Sources */,
+				439A580C2AF0E0C300B826D1 /* StockHolding.m in Sources */,
 				439A58042AF0E08000B826D1 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
