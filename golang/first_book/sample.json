@@ -1,0 +1,9 @@
+{
+  "Name": "Dasha",
+  "Surname": "Iakimova",
+  "Tel": [
+    { "Mobile": true, "Number": "1234-5667" },
+    { "Mobile": true, "Number": "1234-absc" },
+    { "Mobile": false, "Number": "abcd-5667" }
+  ]
+}
