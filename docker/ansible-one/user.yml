@@ -1,0 +1,43 @@
+---
+- name: user # playbook name
+  hosts: demo # hosts group
+  #vars_files:
+  #  - ./my_vars.yml
+  vars_prompt:
+    - name: user
+      prompt: "Enter the user"
+      private: no
+  tasks:
+    - name: Preconfig block
+      block:
+        - name: Create user # command name
+          user: #module
+            name: "{{ user }}" # argument
+            state: absent
+          become: true
+          register: error
+          ignore_errors: yes
+        # debugger: always
+        #   register: out # register user
+        # - debug:
+        #   var: out
+        - name: Install curl
+          apt:
+            name: curl
+            update-cache: yes
+        - name: Fail on FAILED
+          command: echo "FAILED"
+          register: command_result
+          failed_when: "'FAILED' in command_result.stdout"
+      become: true
+      when: ansible_facts['distribution'] == 'Ubuntu'
+      rescue:
+        - name: Some error print
+          debug:
+            var: error
+      always:
+        - name: Reboot
+          debug:
+            msg: "Reooooobitng"
+# launching
+# > ansible-playbook -i hosts.ini user.yml
