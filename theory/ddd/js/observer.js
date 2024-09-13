@@ -37,3 +37,9 @@ let proft = {
 }
 
 module.exports = [Product, fees, proft];
+
+// observed.attach(observer1);
+// observed.attach(observer2);
+// observed.doSomthing();
+// observed.detach(observer1);
+// observed.doSomthing();
