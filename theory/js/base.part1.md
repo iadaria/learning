@@ -691,7 +691,7 @@ function showMessage(from, text = anotherFunction()) {
   // результатом будет значение text
 }
 ```
-
+# Function expression
 
 ```js
 ```
