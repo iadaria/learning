@@ -1,1 +1,1 @@
-console.log('коты' > 'Коты')
+console.log(null === undefined)
