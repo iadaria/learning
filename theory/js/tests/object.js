@@ -18,6 +18,8 @@ for(let prop in user1) {
 
 let user4 = {...user1};
 
+let user5 = structuredClone(user1);
+
 console.log('user2 === user1', user2 === user1);
 console.log('user2.name === user1.name', user2.size === user1.size);
 
@@ -30,6 +32,3 @@ console.log('\nuser4.size === user1.size', user4.size === user1.size)
 
 console.log('\nuser5 === user1', user5 === user1)
 console.log('\nuser5.size === user1.size', user5.size === user1.size)
-
-const user5 = structuredClone(user1);
-user5.name = "Lesha"
