@@ -1,13 +1,9 @@
-let set = new Set([1, ,2, 3, 3])
+let map = [1 , 3, 4]
 
-const values = set.values()
 
-console.log({values})
 
-const keys = set.keys();
+console.log(map.keys())
 
-console.log({ keys})
+console.log(map.values())
 
-const entries = set.entries();
-
-console.log({ entries})
+console.log(map.entries())
