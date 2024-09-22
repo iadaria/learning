@@ -1,16 +1,13 @@
+let set = new Set([1, ,2, 3, 3])
 
+const values = set.values()
 
-function client() {
- let user = {
-  name: "Dasha",
-  age: 38
- }
+console.log({values})
 
- console.log(user)
+const keys = set.keys();
 
- for(let key in user) {
-  console.log(key)
-  console.log(user[key])
- }
-}
-client();
+console.log({ keys})
+
+const entries = set.entries();
+
+console.log({ entries})
