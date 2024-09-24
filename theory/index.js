@@ -1,23 +1,14 @@
-function pow(x, n) {
-  let result = 1;
-  for(let i = 0; i < n; i++) {
-    result *= x;
-  }
-  return result;
+'use strict';
+
+let f = function func(ha) {
+  console.log('ha')
+  if (!ha) return
+  func()
 }
 
-function pow2(x, n) {
-  return (n === 1) ? x: x * pow2(x, n - 1)
+function client() {
+f('ha')
+
 }
 
-function clien() {
-  let result = pow(2, 3);
-
-  console.log(result)
-
-  let result2 = pow2(2, 3);
-
-  console.log(result2)
-}
-
-clien()
+client()
